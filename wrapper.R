@@ -1,6 +1,7 @@
 fetch_hist <- function(short_name = "KAMBI", period = "YEAR_1", res="HOUR_1"){
-  tickers <- read.csv("tickers.csv", sep = ";", header = F)
+  tickers <- read.table("https://raw.githubusercontent.com/ludviglundgrens/Nordnet-API-Wrapper/master/tickers.csv", sep = ";")
   colnames(tickers) <- c("id", "name", "short_name", "ISIN")
+  
   id <- tickers[tickers$short_name == short_name,1]
   base_url = "https://api.prod.nntech.io/market-data/price-time-series/v2/"
   period <- paste0("period/", period,"/")
@@ -23,5 +24,12 @@ fetch_hist <- function(short_name = "KAMBI", period = "YEAR_1", res="HOUR_1"){
   colnames(df) <- c("date", "time", "open", "last", "high", "low", "volume")
   return(df)
 }
+
+print_tickers <- function(short_name = "KAMBI", period = "YEAR_1", res="HOUR_1"){
+  tickers <- read.table("https://raw.githubusercontent.com/ludviglundgrens/Nordnet-API-Wrapper/master/tickers.csv", sep = ";")
+  colnames(tickers) <- c("id", "name", "short_name", "ISIN")
+  print(tickers)
+}
+  
 
 
