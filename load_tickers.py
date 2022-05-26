@@ -6,7 +6,23 @@ ids = []
 names = []
 symbols = []
 isins = []
-with open('./data.json') as data:
+with open('./data_swe.json') as data:
+    df = json.load(data)
+    for i in range(0,len(df)-1):
+        res = df[i]['results']
+        for j in range(0,len(res)-1):
+            row = res[j]['instrument_info']
+            id = row['instrument_id']
+            name = row['name']
+            symbol = row['symbol']
+            isin = row['isin']
+
+            ids.append(id)
+            names.append(name)
+            symbols.append(symbol)
+            isins.append(isin)
+
+with open('./data_etf.json') as data:
     df = json.load(data)
     for i in range(0,len(df)-1):
         res = df[i]['results']
