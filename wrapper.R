@@ -3,7 +3,6 @@ fetch_hist <- function(short_name = "KAMBI", nnid = "" ,period = "YEAR_1", res="
     tickers <- read.table("https://raw.githubusercontent.com/ludviglundgrens/Nordnet-API-Wrapper/master/tickers.csv", sep = ";")
     colnames(tickers) <- c("id", "name", "short_name", "ISIN")
     nnid <- tickers[tickers$short_name == short_name,1]
-  
   }
   base_url = "https://api.prod.nntech.io/market-data/price-time-series/v2/"
   period <- paste0("period/", period,"/")

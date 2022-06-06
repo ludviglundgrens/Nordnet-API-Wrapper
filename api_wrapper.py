@@ -8,40 +8,27 @@ load_dotenv()
 class nordnet_wrapper:
     def __init__(self):
         print("Setting up connection to Nordnet")
-        s = requests.Session() 
-        res = s.post('https://www.nordnet.se/api/2/login/anonymous',
-            headers = {
-                'Content-Type': 'application/json',
-            })
-        self.login()   
-    
-    def login(self):
+        self.s = requests.Session() 
         res = self.s.post('https://www.nordnet.se/api/2/login/anonymous',
             headers = {
-                    'accept':	'application/json',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Accept-Language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7',
-                    'client-id': 'NEXT',
-                    'content-type': 'application/x-www-form-urlencoded',
-                    'DNT': '1',
-                    'Origin': 'https://www.nordnet.se',
-                    'Referer': 'https://www.nordnet.se/',
-                    'sec-ch-ua':	'" Not A;Brand";v="99", "Chromium";v="101", "Google Chrome";v="101"',
-                    'sec-ch-ua-mobile': '?0',
-                    'sec-ch-ua-platform': 'macOS',
-                    'Sec-Fetch-Dest': 'empty',
-                    'Sec-Fetch-Mode':	'cors',
-                    'Sec-Fetch-Site':	'same-origin',
-                    'User-Agent':	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
-            },
-            data = {
+                'Content-Type': 'application/json',
+            })   
+        print(res.content)
+    
+    def login(self):
+        res = self.s.post('https://www.nordnet.se/api/2/authentication/basic/login',
+            json = {
                 'username': os.environ["nn_user"],
                 'password': os.environ["nn_pass"]
             })
-        print("Login server response: ", res)
+        print("Login server response: ", res.content)
 
+        res = self.s.get('https://www.nordnet.se/oversikt')               
+        print("Status code login server: ", res.status_code)
+        #print("Login server response: ", res.content)
+        
     def fetch_tickers_stocks(self):
-        res = self.s.post('https://www.nordnet.se/api/2/instrument_search/query/stocklist?limit=100&offset=100',
+        res = self.s.get('https://www.nordnet.se/api/2/instrument_search/query/stocklist?limit=100&offset=100',
             headers = {
                     'accept':	'application/json',
                     'Accept-Encoding': 'gzip, deflate, br',
@@ -59,8 +46,8 @@ class nordnet_wrapper:
                     'Sec-Fetch-Site':	'same-origin',
                     'User-Agent':	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
             })
-        data = json.loads(res.content)
-        print(data)
+        #data = json.loads(res.content)
+        print("Status code fetch tickets: ",  res.status_code)
 
     def fetch_tickers_etf(self):
         res = self.s.post('https://www.nordnet.se/api/2/instrument_search/query/stocklist?sort_order=asc&sort_attribute=name&limit=100&offset=0',
@@ -96,20 +83,26 @@ class nordnet_wrapper:
                     'Sec-Fetch-Mode': 'cors',
                     'Sec-Fetch-Site': 'same-origin',
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
-                    'accept': 'application/json',
                     'client-id': 'NEXT',
                     'content-type': 'application/json',
-                    'ntag': '3b41b345-e139-4509-b06f-edbe69716cbf',
                     'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="101", "Google Chrome";v="101"',
                     'sec-ch-ua-mobile': '?0',
                     'sec-ch-ua-platform': '"macOS"'                    
             },
             json = {"batch":"[{\"relative_url\":\"accounts/2/fees_and_refunds_summary\",\"method\":\"GET\"},{\"relative_url\":\"accounts/2/positions?include_instrument_loans=true\",\"method\":\"GET\"},{\"relative_url\":\"user/settings/myEconomySelectorDiscovered\",\"method\":\"GET\"}]"}
             )
+        print("Status code fetch positions: ", res.status_code)
         data = json.loads(res.content)
         print(data)
 
     
+def main():
+    nn = nordnet_wrapper()
+    nn.login()
+    nn.fetch_positions()
+
+if __name__ == '__main__':
+    main()
 
 #    Accept-Encoding: 'gzip, deflate, br'
 #    Accept-Language: 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7'

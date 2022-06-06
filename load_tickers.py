@@ -1,46 +1,71 @@
+from ast import Try
 import json
 import csv
-import string
-
-ids = []
-names = []
-symbols = []
-isins = []
-with open('./data_swe.json') as data:
-    df = json.load(data)
-    for i in range(0,len(df)-1):
-        res = df[i]['results']
-        for j in range(0,len(res)-1):
-            row = res[j]['instrument_info']
-            id = row['instrument_id']
-            name = row['name']
-            symbol = row['symbol']
-            isin = row['isin']
-
-            ids.append(id)
-            names.append(name)
-            symbols.append(symbol)
-            isins.append(isin)
-
-with open('./data_etf.json') as data:
-    df = json.load(data)
-    for i in range(0,len(df)-1):
-        res = df[i]['results']
-        for j in range(0,len(res)-1):
-            row = res[j]['instrument_info']
-            id = row['instrument_id']
-            name = row['name']
-            symbol = row['symbol']
-            isin = row['isin']
-
-            ids.append(id)
-            names.append(name)
-            symbols.append(symbol)
-            isins.append(isin)
+import time
+import requests
 
 f = open('tickers.csv', 'w')
-writer = csv.writer(f)
 
-for i in range(0, len(ids)-1):
-    s = [str(ids[i]), str(names[i]), symbols[i], isins[i]]
-    writer.writerow(s)
+# Init Nordnet session
+s = requests.Session() 
+res = s.post('https://www.nordnet.se/api/2/login/anonymous',
+            headers = {
+                'Content-Type': 'application/json',
+            }) 
+
+# Fetch instrument data structure
+res = s.get('https://www.nordnet.se/api/2/instrument_search/query/stocklist?limit=100&offset=0')
+j = json.loads(res.content)
+instr = j['results'][0]['instrument_info']
+
+# Extract column names 
+names = []
+for i in instr:
+    names.append(i)
+
+# Setup writer  
+writer = csv.writer(f)
+writer.writerow(names)
+
+# Loop through all stocktickers
+total_hits =  j['total_hits']
+i = 0
+while i < total_hits:
+    url = "https://www.nordnet.se/api/2/instrument_search/query/stocklist?limit=100&offset=" + str(i)
+    res = s.get(url)
+    out = json.loads(res.content)
+    for j in range(0,99):
+        try: 
+            instr = out['results'][j]['instrument_info']
+            row = []
+            for key in instr:
+                row.append(instr[key])
+            writer.writerow(row)
+        except: 
+            print("Index out of range")
+    i += 100
+    time.sleep(2)
+    print("Fetched", i, "tickers of", total_hits)
+
+# Loop through all etf tickers
+url = "https://www.nordnet.se/api/2/instrument_search/query/etflist?sort_order=desc&sort_attribute=yield_1y&limit=100"
+res = s.get(url)
+j = json.loads(res.content)
+total_hits =  j['total_hits']
+i = 0
+while i < total_hits:
+    url = "https://www.nordnet.se/api/2/instrument_search/query/etflist?sort_order=desc&sort_attribute=yield_1y&limit=100&offset=" + str(i)
+    res = s.get(url)
+    out = json.loads(res.content)
+    for j in range(0,99):
+        try: 
+            instr = out['results'][j]['instrument_info']
+            row = []
+            for key in instr:
+                row.append(instr[key])
+            writer.writerow(row)
+        except: 
+            print("Index out of range")
+    i += 100
+    time.sleep(1)
+    print("Fetched", i, "tickers of", total_hits)
