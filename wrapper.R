@@ -1,12 +1,11 @@
 fetch_hist <- function(short_name = "KAMBI", nnid = "" ,period = "YEAR_1", res="HOUR_1"){
   if(nnid == ""){
     tickers <- read.table("https://raw.githubusercontent.com/ludviglundgrens/Nordnet-API-Wrapper/master/tickers.csv", sep = ",", fill = T, header = T)
-    
-    nnid <- tickers$instrument_id[tickers$symbol == short_name,1]
+    nnid <- tickers$instrument_id[tickers$symbol == short_name]
   }
   base_url = "https://api.prod.nntech.io/market-data/price-time-series/v2/"
   period <- paste0("period/", period,"/")
-  identifier <- paste0("identifier/", nnid)
+  identifier <- paste0("identifier/", na.omit(nnid)[1])
   resolution = paste0("?resolution=",res)
 
   httr::set_config(httr::config(ssl_verifypeer = 0L))
