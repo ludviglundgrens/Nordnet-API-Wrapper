@@ -18,7 +18,7 @@ fetch_hist <- function(short_name = "KAMBI", nnid = "" ,period = "YEAR_1", res="
     datetime <- as.POSIXct(data[[i]]$timeStamp/1000, origin = "1970-01-01")
     date <- strsplit(as.character(datetime), " ")[[1]][1]
     time <- strsplit(as.character(datetime), " ")[[1]][2]
-    row <- c(date, time, data[[i]]$open, data[[i]]$last, data[[i]]$high, data[[i]]$low, data[[i]]$volume)
+    row <- data.frame(date = date,time = time,open = data[[i]]$open,last = data[[i]]$last,high = data[[i]]$high, low = data[[i]]$low, volume = data[[i]]$volume)
     df <- rbind(df, row)
   }
   colnames(df) <- c("date", "time", "open", "last", "high", "low", "volume")
