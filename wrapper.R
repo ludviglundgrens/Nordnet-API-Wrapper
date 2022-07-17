@@ -1,4 +1,4 @@
-getSymbols.NN <- function(short_name = "KAMBI", nnid = "" ,period = "YEAR_1", res="HOUR_1"){
+fetch_hist <- function(short_name = "KAMBI", nnid = "" ,period = "YEAR_1", res="HOUR_1"){
   if(nnid == ""){
     tickers <- read.table("https://raw.githubusercontent.com/ludviglundgrens/Nordnet-API-Wrapper/master/tickers.csv", sep = ",", fill = T, header = T)
     nnid <- tickers$instrument_id[tickers$symbol == short_name]
